@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#1e40af">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <title>Product Details - Dhara Sales & Service</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="font-sans bg-gray-50">
+  <!-- Navigation -->
+  <nav class="bg-white shadow-lg sticky top-0 z-50">
+    <div class="container mx-auto px-4 py-3">
+      <div class="flex justify-between items-center">
+        <div class="flex items-center">
+          <a href="index.html" class="flex items-center">
+            <img src="Dhara_Logo1.png" alt="Logo" class="h-12 mr-3">
+            <div>
+              <span class="nav-brand-title text-blue-800 font-bold text-2xl">Dhara Sales & Service</span>
+              <p class="nav-brand-sub text-gray-600 text-sm">Professional Service Appliances</p>
+            </div>
+          </a>
+        </div>
+        
+        <div class="flex items-center space-x-4">
+          <div id="desktop-nav-links" class="flex items-center space-x-4">
+            <a href="index.html" class="text-gray-700 hover:text-blue-600 font-medium transition">
+              <i class="fas fa-arrow-left mr-2"></i>Back to Home
+            </a>
+          </div>
+          <button id="cart-btn" class="relative bg-blue-600 text-white p-3 rounded-full hover:bg-blue-700 transition">
+            <i class="fas fa-shopping-cart"></i>
+            <span id="cart-count" class="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-6 w-6 flex items-center justify-center hidden">0</span>
+          </button>
+          <button id="hamburger-btn" aria-label="Menu">
+            <i class="fas fa-bars"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Mobile Nav Menu -->
+  <div id="mobile-nav-menu">
+    <a href="index.html"><i class="fas fa-arrow-left text-blue-500"></i>Back to Home</a>
+    <a href="index.html#products"><i class="fas fa-box text-blue-500"></i>Products</a>
+    <a href="index.html#services"><i class="fas fa-tools text-green-500"></i>Services</a>
+    <a href="index.html#contact"><i class="fas fa-envelope text-purple-500"></i>Contact</a>
+    <a href="https://wa.me/919898670727" target="_blank" style="color:#16a34a"><i class="fab fa-whatsapp text-green-500"></i>WhatsApp Us</a>
+  </div>
+
+  <!-- Product Details -->
+  <section class="py-12">
+    <div class="container mx-auto px-4">
+      <div id="product-details" class="product-detail-grid max-w-6xl mx-auto">
+        <!-- Product content will be loaded here -->
+      </div>
+    </div>
+  </section>
+
+  <!-- Related Products -->
+  <section class="py-16 bg-white">
+    <div class="container mx-auto px-4">
+      <h2 class="text-3xl font-bold text-center text-gray-800 mb-12">Related Products</h2>
+      <div id="related-products" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+        <!-- Related products will be loaded here -->
+      </div>
+        <!-- Related products will be loaded here -->
+      </div>
+    </div>
+  </section>
+
+      <!-- Call to Action -->
+      <div class="text-center mt-16">
+        <div class="cta-banner bg-gradient-to-r from-blue-600 to-purple-600 text-white p-8 rounded-2xl shadow-xl">
+          <h3 class="cta-title text-3xl font-bold mb-4">Need More Products?</h3>
+          <p class="cta-sub text-xl mb-6 text-blue-100">Join our whatsapp community for more information...!</p>
+          <a href="https://wa.me/919898670727" class="bg-white text-blue-600 px-8 py-4 rounded-full font-bold text-lg hover:bg-blue-50 transition transform hover:scale-105">
+            <i class="fab fa-whatsapp mr-2"></i>Get Expert Advice
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>  
+
+
+  <!--Outher product-->
+ <section class="py-16 bg-white">
+  <section id="services" class="py-20 bg-white">
+    <div class="container mx-auto px-4">
+      <h2 class="text-3xl font-bold text-center text-gray-800 mb-12">Other Products</h2>
+      
+        <div class="service-card-item group text-center p-8 bg-gradient-to-br from-green-50 to-green-100 rounded-2xl hover:shadow-xl transition transform hover:-translate-y-2">
+          <div class="bg-green-600 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition">
+            <i class="fa-solid fa-people-group text-3xl text-white"></i>
+          </div>
+          <h3 class="service-card-title text-2xl font-bold mb-4 text-gray-800">All Brand's Available</h3>
+          <p class="text-gray-600 leading-relaxed">All leading brands, one trusted place — discover every product you need with expert sales and reliable service.<br> Contact us today for the best deals across all brands!</p>
+      
+    </div>
+  </section>
+</section>
+
+
+
+
+  <!-- Cart Sidebar -->
+  <div id="cart-sidebar" class="fixed right-0 top-0 h-full w-96 bg-white shadow-2xl transform translate-x-full transition-transform z-50">
+    <div class="p-6 border-b">
+      <div class="flex justify-between items-center">
+        <h3 class="text-xl font-bold">Shopping Cart</h3>
+        <button id="close-cart" class="text-gray-500 hover:text-gray-700">
+          <i class="fas fa-times text-xl"></i>
+        </button>
+      </div>
+    </div>
+    <div id="cart-items" class="flex-1 overflow-y-auto p-6">
+      <p class="text-gray-500 text-center">Your cart is empty</p>
+    </div>
+    <div class="border-t p-6">
+      <div class="flex justify-between items-center mb-4">
+        <span class="text-lg font-bold">Total: </span>
+        <span id="cart-total" class="text-xl font-bold text-blue-600">₹0</span>
+      </div>
+      <button id="checkout-btn" class="w-full bg-blue-600 text-white py-3 rounded-lg font-bold hover:bg-blue-700 transition disabled:opacity-50" disabled>
+        Order via WhatsApp
+      </button>
+    </div>
+  </div>
+
+  <!-- Cart Overlay -->
+  <div id="cart-overlay" class="fixed inset-0 bg-black bg-opacity-50 hidden z-40"></div>
+
+  <!-- Footer -->
+  <footer class="bg-gray-900 text-white py-8">
+    <div class="container mx-auto px-4 text-center">
+      <div class="flex items-center justify-center mb-4">
+        <img src="Dhara_Logo1.png" alt="Logo" class="h-8 mr-3">
+        <span class="text-lg font-bold">Dhara Sales & Service</span>
+      </div>
+      <p class="text-gray-400">© 2024 Dhara Sales & Service. All Rights Reserved.</p>
+    </div>
+  </footer>
+
+  <!-- Floating WhatsApp -->
+  <a href="https://wa.me/919898670727" target="_blank" class="whatsapp-float" aria-label="WhatsApp">
+    <i class="fab fa-whatsapp"></i>
+  </a>
+
+  <script src="product-manager.js"></script>
+  <script src="product-details.js"></script>
+  <script>
+    var _hBtn = document.getElementById('hamburger-btn');
+    var _mNav = document.getElementById('mobile-nav-menu');
+    _hBtn.addEventListener('click', function() {
+      _mNav.classList.toggle('open');
+      this.querySelector('i').className = _mNav.classList.contains('open') ? 'fas fa-times' : 'fas fa-bars';
+    });
+  </script>
+</body>
+</html>

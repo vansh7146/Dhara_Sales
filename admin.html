@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Panel - Dhara Sales & Service</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    .login-bg { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+    .shake { animation: shake 0.5s; }
+    @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-5px)} 75%{transform:translateX(5px)} }
+  </style>
+</head>
+<body class="bg-gray-100 min-h-screen">
+
+<!-- LOGIN SCREEN -->
+<div id="login-screen" class="login-bg min-h-screen flex items-center justify-center">
+  <div class="bg-white p-8 rounded-2xl shadow-2xl max-w-md w-full mx-4">
+    <div class="text-center mb-8">
+      <i class="fas fa-lock text-5xl text-blue-600 mb-4"></i>
+      <h1 class="text-3xl font-bold text-gray-800">Admin Access</h1>
+      <p class="text-gray-500 mt-2">Dhara Sales & Service</p>
+    </div>
+    <form id="login-form">
+      <label class="block text-sm font-bold text-gray-700 mb-2">Password</label>
+      <input type="password" id="password" class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none mb-4" placeholder="Enter admin password" required>
+      <button type="submit" class="w-full bg-blue-600 text-white py-3 rounded-lg font-bold hover:bg-blue-700 transition">
+        <i class="fas fa-sign-in-alt mr-2"></i>Login
+      </button>
+    </form>
+    <div id="error-msg" class="mt-4 p-3 bg-red-100 text-red-700 rounded-lg hidden">
+      <i class="fas fa-exclamation-triangle mr-2"></i>Wrong password.
+    </div>
+  </div>
+</div>
+
+<!-- ADMIN PANEL -->
+<div id="admin-panel" class="hidden">
+  <!-- Header -->
+  <header class="bg-blue-800 text-white p-4 shadow-lg">
+    <div class="container mx-auto flex justify-between items-center">
+      <h1 class="text-xl font-bold"><i class="fas fa-cogs mr-2"></i>Dhara Admin Panel</h1>
+      <div class="flex gap-3">
+        <a href="index.html" target="_blank" class="bg-blue-600 px-4 py-2 rounded hover:bg-blue-700 text-sm">
+          <i class="fas fa-external-link-alt mr-1"></i>View Website
+        </a>
+        <button onclick="logout()" class="bg-red-600 px-4 py-2 rounded hover:bg-red-700 text-sm">
+          <i class="fas fa-sign-out-alt mr-1"></i>Logout
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <div class="container mx-auto p-6">
+    <!-- Stats -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+      <div class="bg-white p-5 rounded-xl shadow text-center">
+        <div class="text-3xl font-bold text-blue-600" id="stat-total">0</div>
+        <div class="text-gray-500 text-sm mt-1">Total Products</div>
+      </div>
+      <div class="bg-white p-5 rounded-xl shadow text-center">
+        <div class="text-3xl font-bold text-green-600" id="stat-instock">0</div>
+        <div class="text-gray-500 text-sm mt-1">In Stock</div>
+      </div>
+      <div class="bg-white p-5 rounded-xl shadow text-center">
+        <div class="text-3xl font-bold text-red-500" id="stat-outstock">0</div>
+        <div class="text-gray-500 text-sm mt-1">Out of Stock</div>
+      </div>
+      <div class="bg-white p-5 rounded-xl shadow text-center">
+        <div class="text-3xl font-bold text-purple-600" id="stat-cats">0</div>
+        <div class="text-gray-500 text-sm mt-1">Categories</div>
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="bg-white p-5 rounded-xl shadow mb-6 flex flex-wrap gap-3">
+      <button onclick="openModal()" class="bg-blue-600 text-white px-5 py-2.5 rounded-lg font-bold hover:bg-blue-700">
+        <i class="fas fa-plus mr-2"></i>Add New Product
+      </button>
+      <button onclick="exportProducts()" class="bg-green-600 text-white px-5 py-2.5 rounded-lg font-bold hover:bg-green-700">
+        <i class="fas fa-download mr-2"></i>Export JSON
+      </button>
+      <button onclick="syncToWebsite()" class="bg-purple-600 text-white px-5 py-2.5 rounded-lg font-bold hover:bg-purple-700">
+        <i class="fas fa-sync mr-2"></i>Sync to Website
+      </button>
+    </div>
+
+    <!-- Products Table -->
+    <div class="bg-white rounded-xl shadow overflow-hidden">
+      <div class="p-5 border-b flex justify-between items-center">
+        <h2 class="text-lg font-bold">All Products</h2>
+        <span class="text-sm text-gray-500">Changes save instantly to website</span>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="w-full">
+          <thead class="bg-gray-50 text-sm font-bold text-gray-600">
+            <tr>
+              <th class="px-4 py-3 text-left">Product</th>
+              <th class="px-4 py-3 text-left">Category</th>
+              <th class="px-4 py-3 text-left">Price</th>
+              <th class="px-4 py-3 text-left">Stock</th>
+              <th class="px-4 py-3 text-left">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="products-table"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PRODUCT MODAL -->
+<div id="product-modal" class="fixed inset-0 bg-black bg-opacity-60 hidden z-50 overflow-y-auto">
+  <div class="flex items-start justify-center min-h-screen p-4 py-8">
+    <div class="bg-white rounded-2xl w-full max-w-3xl">
+      <div class="flex justify-between items-center p-6 border-b">
+        <h2 id="modal-title" class="text-2xl font-bold text-gray-800">Add New Product</h2>
+        <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600 text-2xl"><i class="fas fa-times"></i></button>
+      </div>
+      <form id="product-form" class="p-6 space-y-5">
+        <div class="bg-blue-50 rounded-xl p-4">
+          <h3 class="font-bold text-blue-800 mb-4"><i class="fas fa-info-circle mr-2"></i>Step 1 — Basic Information</h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-bold text-gray-700 mb-1">Product Name <span class="text-red-500">*</span></label>
+              <input type="text" id="f-name" class="w-full px-3 py-2.5 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none" placeholder="e.g. AquaFresh RO Premium" required>
+            </div>
+            <div>
+              <label class="block text-sm font-bold text-gray-700 mb-1">Category <span class="text-red-500">*</span></label>
+              <div class="flex gap-2">
+                <select id="f-category" class="flex-1 px-3 py-2.5 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none" required>
+                  <option value="">Select category</option>
+                  <option value="water">Water Solutions</option>
+                  <option value="kitchen">Kitchen Appliances</option>
+                  <option value="cooling">Cooling Systems</option>
+                  <option value="laundry">Laundry Equipment</option>
+                </select>
+                <button type="button" onclick="addCategory()" class="px-3 py-2 bg-gray-200 rounded-lg hover:bg-gray-300 text-sm font-bold">+New</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="bg-green-50 rounded-xl p-4">
+          <h3 class="font-bold text-green-800 mb-4"><i class="fas fa-tag mr-2"></i>Step 2 — Price & Stock</h3>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <label class="block text-sm font-bold text-gray-700 mb-1">Sale Price (₹) <span class="text-red-500">*</span></label>
+              <input type="number" id="f-price" class="w-full px-3 py-2.5 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none" placeholder="9999" required>
+            </div>
+            <div>
+              <label class="block text-sm font-bold text-gray-700 mb-1">Original Price (₹)</label>
+              <input type="number" id="f-original-price" class="w-full px-3 py-2.5 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none" placeholder="13999">
+            </div>
+            <div>
+              <label class="block text-sm font-bold text-gray-700 mb-1">Stock Status <span class="text-red-500">*</span></label>
+              <select id="f-stock" class="w-full px-3 py-2.5 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none">
+                <option value="true">✅ In Stock</option>
+                <option value="false">❌ Out of Stock</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="bg-yellow-50 rounded-xl p-4">
+          <h3 class="font-bold text-yellow-800 mb-4"><i class="fas fa-image mr-2"></i>Step 3 — Product Image</h3>
+          <label class="block text-sm font-bold text-gray-700 mb-1">Image URL <span class="text-red-500">*</span></label>
+          <input type="text" id="f-image" class="w-full px-3 py-2.5 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none" placeholder="https://example.com/product.jpg" required>
+          <div id="img-preview" class="mt-3 hidden">
+            <img id="img-preview-src" src="" alt="Preview" class="h-32 rounded-lg object-cover border-2 border-gray-200">
+          </div>
+        </div>
+        <div class="bg-purple-50 rounded-xl p-4">
+          <h3 class="font-bold text-purple-800 mb-4"><i class="fas fa-align-left mr-2"></i>Step 4 — Descriptions</h3>
+          <div class="space-y-4">
+            <div>
+              <label class="block text-sm font-bold text-gray-700 mb-1">Short Description <span class="text-red-500">*</span></label>
+              <textarea id="f-description" rows="2" class="w-full px-3 py-2.5 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none" required></textarea>
+            </div>
+            <div>
+              <label class="block text-sm font-bold text-gray-700 mb-1">Full Description</label>
+              <textarea id="f-long-description" rows="3" class="w-full px-3 py-2.5 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none"></textarea>
+            </div>
+          </div>
+        </div>
+        <div class="bg-orange-50 rounded-xl p-4">
+          <h3 class="font-bold text-orange-800 mb-4"><i class="fas fa-list-check mr-2"></i>Step 5 — Key Features (one per line)</h3>
+          <textarea id="f-features" rows="4" class="w-full px-3 py-2.5 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none" placeholder="7-stage purification&#10;TDS controller&#10;UV sterilization"></textarea>
+        </div>
+        <div class="bg-teal-50 rounded-xl p-4">
+          <h3 class="font-bold text-teal-800 mb-4"><i class="fas fa-table mr-2"></i>Step 6 — Specifications (Label: Value per line)</h3>
+          <textarea id="f-specifications" rows="5" class="w-full px-3 py-2.5 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none" placeholder="Capacity: 9 Liters&#10;Power: 25 Watts&#10;Warranty: 1 Year"></textarea>
+        </div>
+        <div class="bg-gray-50 rounded-xl p-4">
+          <h3 class="font-bold text-gray-700 mb-4"><i class="fas fa-tools mr-2"></i>Step 7 — Installation & Warranty</h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-bold text-gray-700 mb-1">Installation Info</label>
+              <input type="text" id="f-installation" class="w-full px-3 py-2.5 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none" placeholder="Free installation included">
+            </div>
+            <div>
+              <label class="block text-sm font-bold text-gray-700 mb-1">Warranty Info</label>
+              <input type="text" id="f-warranty" class="w-full px-3 py-2.5 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none" placeholder="1 year comprehensive warranty">
+            </div>
+          </div>
+        </div>
+        <div class="bg-pink-50 rounded-xl p-4">
+          <h3 class="font-bold text-pink-800 mb-4"><i class="fas fa-star mr-2"></i>Step 8 — Rating & Reviews</h3>
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-bold text-gray-700 mb-1">Rating (1.0 – 5.0)</label>
+              <input type="number" id="f-rating" min="1" max="5" step="0.1" value="4.5" class="w-full px-3 py-2.5 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none">
+            </div>
+            <div>
+              <label class="block text-sm font-bold text-gray-700 mb-1">Number of Reviews</label>
+              <input type="number" id="f-reviews" min="0" value="0" class="w-full px-3 py-2.5 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none">
+            </div>
+          </div>
+        </div>
+        <div class="flex justify-end gap-3 pt-2 border-t">
+          <button type="button" onclick="closeModal()" class="px-6 py-3 border-2 border-gray-300 rounded-lg font-bold hover:bg-gray-50">Cancel</button>
+          <button type="submit" class="px-8 py-3 bg-blue-600 text-white rounded-lg font-bold hover:bg-blue-700">
+            <i class="fas fa-save mr-2"></i>Save Product
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script src="product-manager.js"></script>
+<script>
+const PASS = 'dhara2024admin';
+let editId = null;
+
+// ── Login ──────────────────────────────────────────────────────
+document.getElementById('login-form').addEventListener('submit', function(e) {
+  e.preventDefault();
+  if (document.getElementById('password').value === PASS) {
+    sessionStorage.setItem('adminLoggedIn', 'true');
+    showPanel();
+  } else {
+    document.getElementById('error-msg').classList.remove('hidden');
+    this.classList.add('shake');
+    setTimeout(() => this.classList.remove('shake'), 500);
+    document.getElementById('password').value = '';
+  }
+});
+
+if (sessionStorage.getItem('adminLoggedIn') === 'true') showPanel();
+
+function showPanel() {
+  document.getElementById('login-screen').classList.add('hidden');
+  document.getElementById('admin-panel').classList.remove('hidden');
+  renderDashboard();
+}
+
+function logout() {
+  sessionStorage.removeItem('adminLoggedIn');
+  location.reload();
+}
+
+// ── Dashboard ──────────────────────────────────────────────────
+function renderDashboard() {
+  const products = window.productManager.getAllProducts();
+  const inStock = products.filter(p => p.inStock).length;
+  const cats = new Set(products.map(p => p.category)).size;
+  document.getElementById('stat-total').textContent = products.length;
+  document.getElementById('stat-instock').textContent = inStock;
+  document.getElementById('stat-outstock').textContent = products.length - inStock;
+  document.getElementById('stat-cats').textContent = cats;
+
+  document.getElementById('products-table').innerHTML = products.map(p => `
+    <tr class="border-b hover:bg-gray-50">
+      <td class="px-4 py-3">
+        <div class="flex items-center gap-3">
+          <img src="${p.image}" class="w-12 h-12 object-cover rounded-lg" onerror="this.src='https://via.placeholder.com/48'">
+          <div>
+            <div class="font-bold text-gray-800">${p.name}</div>
+            <div class="text-xs text-gray-500">${(p.description||'').substring(0,45)}...</div>
+          </div>
+        </div>
+      </td>
+      <td class="px-4 py-3"><span class="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-bold">${p.category}</span></td>
+      <td class="px-4 py-3">
+        <div class="font-bold">₹${p.price.toLocaleString()}</div>
+        ${p.originalPrice ? `<div class="text-xs text-gray-400 line-through">₹${p.originalPrice.toLocaleString()}</div>` : ''}
+      </td>
+      <td class="px-4 py-3">
+        <span class="px-2 py-1 rounded-full text-xs font-bold ${p.inStock ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">
+          ${p.inStock ? '✅ In Stock' : '❌ Out of Stock'}
+        </span>
+      </td>
+      <td class="px-4 py-3">
+        <div class="flex gap-2">
+          <button onclick="editProduct(${p.id})" class="bg-blue-500 text-white px-3 py-1.5 rounded hover:bg-blue-600 text-sm"><i class="fas fa-edit"></i></button>
+          <button onclick="toggleStock(${p.id})" class="bg-yellow-500 text-white px-3 py-1.5 rounded hover:bg-yellow-600 text-sm"><i class="fas fa-sync"></i></button>
+          <button onclick="deleteProduct(${p.id})" class="bg-red-500 text-white px-3 py-1.5 rounded hover:bg-red-600 text-sm"><i class="fas fa-trash"></i></button>
+        </div>
+      </td>
+    </tr>
+  `).join('');
+}
+
+// ── Modal ──────────────────────────────────────────────────────
+function openModal() {
+  editId = null;
+  document.getElementById('modal-title').textContent = 'Add New Product';
+  document.getElementById('product-form').reset();
+  document.getElementById('f-rating').value = '4.5';
+  document.getElementById('f-reviews').value = '0';
+  document.getElementById('img-preview').classList.add('hidden');
+  document.getElementById('product-modal').classList.remove('hidden');
+}
+
+function closeModal() {
+  document.getElementById('product-modal').classList.add('hidden');
+  editId = null;
+}
+
+function editProduct(id) {
+  const p = window.productManager.getProduct(id);
+  if (!p) return;
+  editId = id;
+  document.getElementById('modal-title').textContent = 'Edit Product — ' + p.name;
+  document.getElementById('f-name').value = p.name || '';
+  document.getElementById('f-category').value = p.category || '';
+  document.getElementById('f-price').value = p.price || '';
+  document.getElementById('f-original-price').value = p.originalPrice || '';
+  document.getElementById('f-stock').value = String(p.inStock !== false);
+  document.getElementById('f-image').value = p.image || '';
+  document.getElementById('f-description').value = p.description || '';
+  document.getElementById('f-long-description').value = p.longDescription || '';
+  document.getElementById('f-features').value = (p.features || []).join('\n');
+  document.getElementById('f-installation').value = p.installation || '';
+  document.getElementById('f-warranty').value = p.warranty || '';
+  document.getElementById('f-rating').value = p.rating || 4.5;
+  document.getElementById('f-reviews').value = p.reviews || 0;
+  const specs = p.specifications || {};
+  document.getElementById('f-specifications').value = Object.entries(specs).map(([k,v]) => `${k}: ${v}`).join('\n');
+  if (p.image) {
+    document.getElementById('img-preview-src').src = p.image;
+    document.getElementById('img-preview').classList.remove('hidden');
+  }
+  document.getElementById('product-modal').classList.remove('hidden');
+}
+
+document.getElementById('f-image').addEventListener('input', function() {
+  if (this.value.trim()) {
+    document.getElementById('img-preview-src').src = this.value.trim();
+    document.getElementById('img-preview').classList.remove('hidden');
+  } else {
+    document.getElementById('img-preview').classList.add('hidden');
+  }
+});
+
+function addCategory() {
+  const name = prompt('Enter new category name:');
+  if (!name || !name.trim()) return;
+  const val = name.trim().toLowerCase().replace(/\s+/g, '-');
+  const sel = document.getElementById('f-category');
+  if ([...sel.options].some(o => o.value === val)) { sel.value = val; return; }
+  sel.add(new Option(name.trim(), val));
+  sel.value = val;
+  notify('Category "' + name.trim() + '" added!');
+}
+
+// ── Stock / Delete ─────────────────────────────────────────────
+function toggleStock(id) {
+  const p = window.productManager.getProduct(id);
+  if (!p) return;
+  window.productManager.updateProduct(id, { inStock: !p.inStock });
+  renderDashboard();
+  notify('Stock updated: ' + (!p.inStock ? 'In Stock' : 'Out of Stock'));
+}
+
+function deleteProduct(id) {
+  const p = window.productManager.getProduct(id);
+  if (!p) return;
+  if (confirm('Delete "' + p.name + '"?\nThis will remove it from the website immediately.')) {
+    window.productManager.deleteProduct(id);
+    renderDashboard();
+    notify('Product deleted from website.');
+  }
+}
+
+// ── Sync to Website ────────────────────────────────────────────
+// Writes current admin products directly to localStorage with a new version
+// timestamp. The main website polls every 300ms and re-renders automatically.
+function syncToWebsite() {
+  const products = window.productManager.getAllProducts();
+  const json = JSON.stringify(products);
+  const ver = String(Date.now());
+  localStorage.setItem('dhara_products', json);
+  localStorage.setItem('dhara_products_ver', ver);
+  notify('✅ Synced ' + products.length + ' products to website!');
+}
+
+// ── Export ─────────────────────────────────────────────────────
+function exportProducts() {
+  const blob = new Blob([JSON.stringify(window.productManager.getAllProducts(), null, 2)], {type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'products-' + new Date().toISOString().split('T')[0] + '.json';
+  a.click();
+  notify('Products exported!');
+}
+
+// ── Notify ─────────────────────────────────────────────────────
+function notify(msg) {
+  const n = document.createElement('div');
+  n.className = 'fixed top-4 right-4 bg-green-500 text-white px-5 py-3 rounded-xl shadow-lg z-50 font-bold';
+  n.innerHTML = '<i class="fas fa-check-circle mr-2"></i>' + msg;
+  document.body.appendChild(n);
+  setTimeout(() => n.remove(), 3000);
+}
+
+// ── Form Submit ────────────────────────────────────────────────
+document.getElementById('product-form').addEventListener('submit', function(e) {
+  e.preventDefault();
+
+  const specs = {};
+  document.getElementById('f-specifications').value.split('\n').forEach(line => {
+    const i = line.indexOf(':');
+    if (i > 0) {
+      const k = line.substring(0, i).trim();
+      const v = line.substring(i + 1).trim();
+      if (k && v) specs[k] = v;
+    }
+  });
+
+  const data = {
+    name:            document.getElementById('f-name').value.trim(),
+    category:        document.getElementById('f-category').value,
+    price:           parseInt(document.getElementById('f-price').value),
+    originalPrice:   document.getElementById('f-original-price').value ? parseInt(document.getElementById('f-original-price').value) : null,
+    inStock:         document.getElementById('f-stock').value === 'true',
+    image:           document.getElementById('f-image').value.trim(),
+    description:     document.getElementById('f-description').value.trim(),
+    longDescription: document.getElementById('f-long-description').value.trim(),
+    features:        document.getElementById('f-features').value.split('\n').map(f => f.trim()).filter(Boolean),
+    specifications:  specs,
+    installation:    document.getElementById('f-installation').value.trim(),
+    warranty:        document.getElementById('f-warranty').value.trim(),
+    rating:          parseFloat(document.getElementById('f-rating').value) || 4.5,
+    reviews:         parseInt(document.getElementById('f-reviews').value) || 0
+  };
+
+  if (editId) {
+    window.productManager.updateProduct(editId, data);
+    notify('✅ Product updated! Website now shows new data.');
+  } else {
+    window.productManager.addProduct(data);
+    notify('✅ New product added! Now live on website.');
+  }
+
+  closeModal();
+  renderDashboard();
+});
+</script>
+</body>
+</html>
